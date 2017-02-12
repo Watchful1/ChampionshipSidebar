@@ -1,0 +1,1 @@
+This is a bot to update the sidebar of /r/Championship
