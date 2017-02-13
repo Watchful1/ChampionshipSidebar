@@ -14,7 +14,7 @@ import datetime
 
 ### Config ###
 LOG_FOLDER_NAME = "logs"
-SUBREDDIT = "SubTestBot1" #"Championship"
+SUBREDDIT = "Championship"
 USER_AGENT = "ChampionshipSidebar (by /u/Watchful1)"
 LOOP_TIME = 15*60
 
