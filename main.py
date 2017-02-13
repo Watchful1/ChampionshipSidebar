@@ -39,6 +39,42 @@ if LOG_FILENAME is not None:
 	log.addHandler(log_fileHandler)
 
 
+teams = [{'team': 'Newcastle United FC', 'name': 'Newcastle', 'url': 'https://www.reddit.com/r/NUFC'}
+	,{'team': 'Brighton & Hove Albion', 'name': 'Brighton', 'url': 'https://www.reddit.com/r/BrightonHoveAlbion'}
+	,{'team': 'Huddersfield Town', 'name': 'Huddersfield', 'url': 'http://www.reddit.com/r/huddersfieldtownfc'}
+	,{'team': 'Reading', 'name': 'Reading', 'url': 'http://www.reddit.com/r/Urz'}
+	,{'team': 'Leeds United', 'name': 'Leeds', 'url': 'http://www.reddit.com/r/LeedsUnited'}
+	,{'team': 'Sheffield Wednesday', 'name': 'Sheff Wed', 'url': 'http://www.reddit.com/r/SheffieldWednesday'}
+	,{'team': 'Norwich City FC', 'name': 'Norwich', 'url': 'https://www.reddit.com/r/NorwichCity'}
+	,{'team': 'Derby County', 'name': 'Derby', 'url': 'http://www.reddit.com/r/DerbyCounty'}
+	,{'team': 'Fulham FC', 'name': 'Fulham', 'url': 'http://www.reddit.com/r/fulhamfc'}
+	,{'team': 'Barnsley FC', 'name': 'Barnsley', 'url': 'https://www.reddit.com/r/BarnsleyFC'}
+	,{'team': 'Preston North End', 'name': 'Preston', 'url': 'http://www.reddit.com/r/pne'}
+	,{'team': 'Birmingham City', 'name': 'Birmingham', 'url': 'http://www.reddit.com/r/bcfc'}
+	,{'team': 'Ipswich Town', 'name': 'Ipswich Town', 'url': 'http://www.reddit.com/r/IpswichTownFC'}
+	,{'team': 'Cardiff City FC', 'name': 'Cardiff', 'url': 'http://www.reddit.com/r/bluebirds'}
+	,{'team': 'Brentford FC', 'name': 'Brentford', 'url': 'http://www.reddit.com/r/Brentford'}
+	,{'team': 'Aston Villa FC', 'name': 'Aston Villa', 'url': 'https://www.reddit.com/r/avfc'}
+	,{'team': 'Nottingham Forest', 'name': 'Nottm Forest', 'url': 'http://www.reddit.com/r/nffc'}
+	,{'team': 'Wolverhampton Wanderers FC', 'name': 'Wolves', 'url': 'http://www.reddit.com/r/WWFC'}
+	,{'team': 'Queens Park Rangers', 'name': 'QPR', 'url': 'http://www.reddit.com/r/superhoops'}
+	,{'team': 'Bristol City', 'name': 'Bristol City', 'url': 'http://www.reddit.com/r/BristolCity'}
+	,{'team': 'Blackburn Rovers FC', 'name': 'Blackburn', 'url': 'http://www.reddit.com/r/brfc'}
+	,{'team': 'Burton Albion FC', 'name': 'Burton', 'url': 'https://www.reddit.com/r/BurtonFC'}
+	,{'team': 'Wigan Athletic FC', 'name': 'Wigan', 'url': 'https://www.reddit.com/r/latics'}
+	,{'team': 'Rotherham United', 'name': 'Rotherham', 'url': 'http://www.reddit.com/r/RotherhamUtd'}
+]
+
+default = {'team': 'Unknown', 'name': 'Unknown', 'url': 'https://www.reddit.com/r/Championship'}
+
+def teamToName(team):
+	for teamHash in teams:
+		if team == teamHash['team']:
+			return teamHash
+	log.warning("Could not parse team: "+team)
+	return default
+
+
 def getSchedule():
 	try:
 		resp = requests.get(url="http://api.football-data.org/v1/competitions/427/fixtures", headers={'User-Agent': USER_AGENT})
@@ -53,8 +89,8 @@ def getSchedule():
 				if len(dates) > 2 and len(gamesOut) >= 10:
 					return gamesOut
 				gamesOut.append({'date': gameDate
-						,'home': game['homeTeamName']
-						,'away': game['awayTeamName']
+						,'home': teamToName(game['homeTeamName'])
+						,'away': teamToName(game['awayTeamName'])
 					})
 	except Exception as err:
 		log.warning("Exception parsing schedule")
@@ -69,7 +105,7 @@ def getTable():
 		table = jsonData['standing']
 		tableOut = []
 		for team in table:
-			tableOut.append({'team': team['teamName']
+			tableOut.append({'team': teamToName(team['teamName'])
 					,'gamesPlayed': team['playedGames']
 					,'goalDifference': team['goalDifference']
 					,'points': team['points']
@@ -145,9 +181,9 @@ while True:
 			output.append("|")
 			output.append(str(count))
 			output.append("|[")
-			output.append(team['team'])
+			output.append(team['team']['name'])
 			output.append("](")
-			output.append("http://www.example.com")
+			output.append(team['team']['url'])
 			output.append(")|")
 			output.append(str(team['gamesPlayed']))
 			output.append("|")
@@ -183,9 +219,9 @@ while True:
 			output.append("|")
 			output.append(game['date'].strftime("%H:%M"))
 			output.append("|")
-			output.append(game['home'])
+			output.append(game['home']['name'])
 			output.append("|")
-			output.append(game['away'])
+			output.append(game['away']['name'])
 			output.append("|")
 			output.append("\n")
 
@@ -197,8 +233,6 @@ while True:
 		output.append("](https://www.reddit.com/u/")
 		output.append(username)
 		output.append(")\n\n")
-
-		log.debug(''.join(output))
 
 		subreddit.mod.update(description=begin+''.join(output)+end)
 
